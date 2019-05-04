@@ -2,11 +2,7 @@
 
 PIDF=/var/run/tempmon.pid
 
-if [ "$(cat /proc/device-tree/chosen/model)" = "acq1002" ]; then
-	SITE3ID="CELF2";
-else
-	SITE3ID="SITE3";
-fi
+SITE3ID="SITE3";
 
 monitor() {
 cd /dev/hwmon
