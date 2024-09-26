@@ -72,9 +72,9 @@ SSL_CA_POPUP_LINK=${SSL_CA_POPUP_LINK:-https://www.d-tacq.com/acq400_ssl.shtml}
 sed -i "s|CA_LINK_PLACEHOLDER|$SSL_CA_POPUP_LINK|" /var/www/d-tacq/scripts/scripts.js
 
 #activate key and cert from nv location
-sysconfig=/mnt/local/sysconfig/
-nv_cert=${sysconfig}/ssl/$(hostname).crt
-nv_key=${sysconfig}/ssl/$(hostname).key
+non_volatile=/mnt/local/sysconfig
+nv_cert=${non_volatile}/ssl/$(hostname).crt
+nv_key=${non_volatile}/ssl/$(hostname).key
 
 active_cert=/etc/nginx/certificate.crt
 active_key=/etc/nginx/private.key
@@ -86,7 +86,7 @@ if [ -e $nv_cert ] && [ -e $nv_key ]; then
 else
 	case $SSL_MODE in
 	ON|FORCE)
-		ls -l $sysconfig/ssl
+		ls -l $non_volatile/ssl
 		echo "ERROR SSL_MODE $SSL_MODE selected, but we do not have key and cert";;
 	*)
 		;;
@@ -94,7 +94,7 @@ else
 fi
 
 #link auth file if exists
-nv_auth=${sysconfig}/auth
+nv_auth=${non_volatile}/auth
 active_auth=/etc/nginx/auth
 if [ -e $nv_auth ]; then
 	ln -s $nv_auth $active_auth
