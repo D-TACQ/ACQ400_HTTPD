@@ -21,9 +21,10 @@ ln -s /dev/shm/temp.txt /etc/acq400/0/SYS_TEMP
 
 grep -q emlog /proc/modules; [ $? -ne 0 ] && /sbin/insmod /usr/local/lib/modules/emlog.ko
 
-mkdir -p /var/www/d-tacq /var/log/nginx/
+mkdir -p /var/www/d-tacq /var/www/cgi-bin /var/log/nginx/
 mkemlog /var/log/nginx/acq400.access.log
 mount --bind /usr/local/var/www/d-tacq /var/www/d-tacq
+mount --bind /usr/local/var/www/cgi-bin /var/www/cgi-bin
 mount --bind /dev/shm/ /var/www/d-tacq/data/
 cp /usr/local/var/www/index.html /var/www/
 (cd /var/www/d-tacq/; ln -s acq_main_page.html index.html)
@@ -91,6 +92,18 @@ else
 	*)
 		;;
 	esac
+fi
+
+# Enable CGI unless NO_CGI=1
+if [ "${NO_CGI}" != "1" ]; then
+	chmod 755 /var/www/cgi-bin /var/www/cgi-bin/*
+	mkdir -p /var/run
+	killall fcgiwrap 2>/dev/null
+	rm -f /var/run/fcgiwrap.sock
+	$DAEMON /usr/sbin/fcgiwrap -s unix:/var/run/fcgiwrap.sock
+	while [ ! -S /var/run/fcgiwrap.sock ]; do sleep 0.1; done
+	chgrp www-data /var/run/fcgiwrap.sock
+	chmod 660 /var/run/fcgiwrap.sock
 fi
 
 #start nginx with correct conf

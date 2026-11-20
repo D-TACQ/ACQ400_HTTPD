@@ -1,0 +1,17 @@
+#!/bin/sh
+
+if [ ! -x /usr/local/CARE/sc_reader.py ]; then
+    echo "Status: 500 Internal Server Error"
+    echo "Content-Type: text/plain"
+    echo ""
+    echo "Error: /usr/local/CARE/sc_reader.py not found"
+    exit 1
+fi
+
+OUTFILE="$(hostname).$(date +%y-%m-%d_%H-%M-%S).scdump.txt"
+
+echo "Content-Type: text/plain"
+echo "Content-Disposition: attachment; filename=\"$OUTFILE\""
+echo ""
+
+/usr/local/CARE/sc_reader.py
